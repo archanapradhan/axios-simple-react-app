@@ -7,24 +7,43 @@ import "./Blog.css";
 import axios from "axios";
 
 class Blog extends Component {
+  state = {
+    posts: [],
+    selectedPostId: null,
+  };
   componentDidMount() {
     //first argument is the url we send http requests to, second argument holds the cofiguration
     //Primise object: a default javascript object introduced with ES6
     axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
+      const posts = response.data.slice(0, 4);
+      const updatedPosts = posts.map((x) => {
+        return { ...x, author: "Archana" };
+      });
+      this.setState({ posts: updatedPosts });
       console.log(response);
     });
   }
 
+  postSelectedHandler = (id) => {
+    this.setState({ selectedPostId: id });
+  };
+
   render() {
+    const posts = this.state.posts.map((x) => {
+      return (
+        <Post
+          key={x.id}
+          title={x.title}
+          author={x.author}
+          clicked={() => this.postSelectedHandler(x.id)}
+        ></Post>
+      );
+    });
     return (
       <div>
-        <section className="Posts">
-          <Post />
-          <Post />
-          <Post />
-        </section>
+        <section className="Posts">{posts}</section>
         <section>
-          <FullPost />
+          <FullPost id={this.state.selectedPostId} />
         </section>
         <section>
           <NewPost />
