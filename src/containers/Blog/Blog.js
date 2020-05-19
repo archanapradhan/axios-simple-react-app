@@ -10,18 +10,27 @@ class Blog extends Component {
   state = {
     posts: [],
     selectedPostId: null,
+    error: false,
   };
+
   componentDidMount() {
     //first argument is the url we send http requests to, second argument holds the cofiguration
     //Primise object: a default javascript object introduced with ES6
-    axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
-      const posts = response.data.slice(0, 4);
-      const updatedPosts = posts.map((x) => {
-        return { ...x, author: "Archana" };
+    axios
+      .get("/posts")
+      .then((response) => {
+        const posts = response.data.slice(0, 4);
+        const updatedPosts = posts.map((x) => {
+          return { ...x, author: "Archana" };
+        });
+        this.setState({ posts: updatedPosts });
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+        // return Promise.reject(error);
+        this.setState({ error: true });
       });
-      this.setState({ posts: updatedPosts });
-      console.log(response);
-    });
   }
 
   postSelectedHandler = (id) => {
@@ -29,16 +38,19 @@ class Blog extends Component {
   };
 
   render() {
-    const posts = this.state.posts.map((x) => {
-      return (
-        <Post
-          key={x.id}
-          title={x.title}
-          author={x.author}
-          clicked={() => this.postSelectedHandler(x.id)}
-        ></Post>
-      );
-    });
+    let posts = <p style={{ textAlign: "center" }}>Something went wrong!</p>;
+    if (!this.state.error) {
+      posts = this.state.posts.map((x) => {
+        return (
+          <Post
+            key={x.id}
+            title={x.title}
+            author={x.author}
+            clicked={() => this.postSelectedHandler(x.id)}
+          ></Post>
+        );
+      });
+    }
     return (
       <div>
         <section className="Posts">{posts}</section>
